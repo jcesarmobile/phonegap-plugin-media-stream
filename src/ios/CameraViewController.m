@@ -10,6 +10,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import "UIImage+DrawBlock.h"
 #import <Cordova/CDVPlugin+Resources.h>
+#import <Photos/Photos.h>
 
 @interface CameraViewController () <UINavigationControllerDelegate, UIImagePickerControllerDelegate>
 @property (weak, nonatomic) IBOutlet UIView *bottomBarView;
@@ -19,6 +20,7 @@
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *cameraViewBottomConstraint;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomBarHeightConstraint;
 @property (weak, nonatomic) IBOutlet UIButton *flashButton;
+@property (weak, nonatomic) IBOutlet UIImageView *previousImage;
 @property (strong, nonatomic) UIVisualEffectView *blurView;
 @property (nonatomic, strong) AVCaptureSession *session;
 @property (nonatomic, strong) UIView *capturePreviewView;
@@ -68,6 +70,18 @@
     self.flashImages = @[@"flash-off",@"flash-on",@"flash-auto"];
 
     [self updateOrientation];
+
+    if (PHPhotoLibrary.authorizationStatus == PHAuthorizationStatusAuthorized) {
+        [self getLastPhoto];
+    } else {
+        [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+            if (status == PHAuthorizationStatusAuthorized) {
+                [self getLastPhoto];
+            }
+        }];
+    }
+    UITapGestureRecognizer * photoTap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(pickGaleryPhoto:)];
+    [self.previousImage addGestureRecognizer:photoTap];
 }
 
 
@@ -182,6 +196,7 @@
         self.takePhotoButton.transform = CGAffineTransformMakeRotation(angle);
         self.switchCamera.transform = CGAffineTransformMakeRotation(angle);
         self.flashButton.transform = CGAffineTransformMakeRotation(angle);
+        self.previousImage.transform = CGAffineTransformMakeRotation(angle);
     }];
 }
 
@@ -385,6 +400,7 @@
 
 }
 
+
 - (void)takeVideo
 {
     NSURL *outputURL = [self getStorageDirectory];
@@ -392,6 +408,8 @@
     [movieOutput startRecordingToOutputFileURL:outputURL recordingDelegate:weakSelf];
 
 }
+
+
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput
 didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
       fromConnections:(NSArray *)connections
@@ -418,6 +436,8 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
         [self.mediaStreamInterface receiveError];
     }
 }
+
+
 - (NSURL*) getStorageDirectory
 {
     NSError *err = nil;
@@ -438,6 +458,28 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     NSString *uuid = [[NSUUID UUID] UUIDString];
     uuid = [uuid stringByAppendingString:@".mov"];
     return [libraryDirectoryUrl URLByAppendingPathComponent:uuid];
+}
+
+- (void) pickGaleryPhoto: (UITapGestureRecognizer *)recognizer
+{
+    [self handleImage:self.previousImage.image];
+}
+
+-(void)getLastPhoto
+{
+    PHFetchOptions *fetchOptions = [[PHFetchOptions alloc] init];
+    fetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES]];
+    PHFetchResult *fetchResult = [PHAsset fetchAssetsWithMediaType:PHAssetMediaTypeImage options:fetchOptions];
+    PHAsset *lastAsset = [fetchResult lastObject];
+    [[PHImageManager defaultManager] requestImageForAsset:lastAsset
+                                               targetSize:self.previousImage.bounds.size
+                                              contentMode:PHImageContentModeAspectFill
+                                                  options:PHImageRequestOptionsVersionCurrent
+                                            resultHandler:^(UIImage *result, NSDictionary *info) {
+                                                dispatch_async(dispatch_get_main_queue(), ^{
+                                                    self.previousImage.image = result;
+                                                });
+                                            }];
 }
 
 /**

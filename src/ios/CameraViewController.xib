@@ -15,6 +15,7 @@
                 <outlet property="cameraContainerView" destination="PPI-1U-rNc" id="JOG-KR-uy6"/>
                 <outlet property="cameraViewBottomConstraint" destination="98F-sk-gP3" id="KHH-SJ-aeK"/>
                 <outlet property="flashButton" destination="Oti-nb-xQ1" id="1l7-eM-I5m"/>
+                <outlet property="previousImage" destination="YxE-pw-quI" id="3H7-MZ-Uaz"/>
                 <outlet property="switchCamera" destination="Ap0-9j-R4K" id="XZ0-Bw-TxV"/>
                 <outlet property="takePhotoButton" destination="VGJ-Mc-QDp" id="IdV-9r-ukH"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
@@ -52,10 +53,20 @@
                                 <action selector="switchCameraButtonWasTouched:" destination="-1" eventType="touchUpInside" id="6sG-69-wwg"/>
                             </connections>
                         </button>
+                        <imageView clipsSubviews="YES" contentMode="center" translatesAutoresizingMaskIntoConstraints="NO" id="YxE-pw-quI">
+                            <rect key="frame" x="15" y="15" width="66" height="66"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="66" id="8ui-hD-0Uc"/>
+                                <constraint firstAttribute="height" constant="66" id="VKP-Tu-ezO"/>
+                            </constraints>
+                        </imageView>
                     </subviews>
                     <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.40000000000000002" colorSpace="custom" customColorSpace="sRGB"/>
                     <constraints>
+                        <constraint firstItem="YxE-pw-quI" firstAttribute="leading" secondItem="BZp-h5-AmJ" secondAttribute="leading" constant="15" id="0TZ-0Q-fRh"/>
                         <constraint firstItem="Ap0-9j-R4K" firstAttribute="centerY" secondItem="VGJ-Mc-QDp" secondAttribute="centerY" id="JgF-fp-AUF"/>
+                        <constraint firstAttribute="bottom" secondItem="YxE-pw-quI" secondAttribute="bottom" constant="15" id="jnl-TH-OTH"/>
+                        <constraint firstItem="YxE-pw-quI" firstAttribute="top" secondItem="VGJ-Mc-QDp" secondAttribute="top" id="jtL-m3-xOw"/>
                         <constraint firstItem="VGJ-Mc-QDp" firstAttribute="centerX" secondItem="BZp-h5-AmJ" secondAttribute="centerX" id="kia-YU-hQL"/>
                         <constraint firstAttribute="height" constant="96" id="qIF-YH-5Ab"/>
                         <constraint firstAttribute="bottom" secondItem="VGJ-Mc-QDp" secondAttribute="bottom" constant="15" id="rBG-dv-9Fu"/>
